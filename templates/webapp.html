@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+<head>
+  
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-113958168-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+  
+    gtag('config', 'UA-113958168-1');
+  </script>
+  
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Digit Recognizer</title><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+<link rel="stylesheet" href="custom.css">
+
+    <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML"></script>
+    <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+            displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+            processEscapes: true,
+            processEnvironments: true
+        },
+        // Center justify equations in code and markdown cells. Elsewhere
+        // we use CSS to left justify single line equations in code cells.
+        displayAlign: 'center',
+        "HTML-CSS": {
+            styles: {'.MathJax_Display': {"margin": 0}},
+            linebreaks: { automatic: true }
+        }
+    });
+    </script>
+
+    <!-- End of mathjax configuration -->
+
+    <!-- newblock -->
+<script src='http://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js'></script>
+<script type="text/javascript">
+
+   $(function(){
+       var canvasObj = document.getElementById("canvas");
+       emptyImage = canvasObj.toDataURL();
+       $(".myButton").click(function(){
+           $("#warning").text("");
+            var newcanvasObj = document.getElementById("canvas");
+            var img = newcanvasObj.toDataURL('image/png');
+           if(img==emptyImage){
+               $("#warning").text("Please draw the digit !");
+           }else{
+              $("#output").text("processing....").css({'font-size':'30px','margin':'60px auto', 'text-align':'center'});
+              var $SCRIPT_ROOT = "";
+              $.ajax({
+                  type: "POST",
+                  url: $SCRIPT_ROOT + "/predict",
+                  data: img,
+                  success: function(data){
+
+                     $('#output').text(data).css({'font-size':'80px'});
+                  }
+              });
+          }
+         });
+    });
+</script>
+
+
+<!-- endnewblock -->
+   </head>
+<body>
+<!-- newblock -->
+<div class="container-fluid" style="margin:50px auto; background:linear-gradient(0deg, #ccc, #f0f0f0)">
+
+    <div class="row">
+        <div class="col-md-12">
+        <h2 style="text-align:center;color:#4582ec"> Handwritten Digit Recognizer </h2>
+        </div>
+    </div>
+
+    <canvas id="canvas" class='img-responsive'style="height: 350px; width: 350px; border: 8px solid black;border-radius: 5px; cursor: crosshair;float:left;"></canvas>
+
+
+    <h1 style="text-align:center;color:#5bc0de;">Result</h1>
+    <p id="output" style="text-align:center;margin:40px auto;font-size:70px">...</p>
+    <div class="row">
+
+        <div class="col-md-12">
+            <input type="button" id="clearButton" value="Clear" style="background-color:#5bc0de;">
+            <a href="#" class="myButton"><span style=" font-weight: 400;font-size:30px; font-family: 'Open Sans', Helvetica;margin-left:30px;"> Predict </span></a>
+            <p id="warning" style="text-align:center;margin:20px auto;font-size:20px;color:red"></p>
+            
+        </div>
+    </div>
+</div>
+    
+  
+
+    <script>
+    (function()
+{
+var canvas = document.getElementById("canvas");
+var context = canvas.getContext( "2d" );
+canvas.width = 280;
+canvas.height = 280;
+
+var Mouse = { x: 0, y: 0 };
+var lastMouse = { x: 0, y: 0 };
+context.fillStyle="white";
+context.fillRect(0,0,canvas.width,canvas.height);
+context.color = "black";
+context.lineWidth = 10;
+context.lineJoin = context.lineCap = 'round';
+
+debug();
+
+canvas.addEventListener( "mousemove", function( e )
+{
+    lastMouse.x = Mouse.x;
+    lastMouse.y = Mouse.y;
+
+    Mouse.x = e.pageX - this.offsetLeft;
+    Mouse.y = e.pageY - this.offsetTop;
+    }, false );
+
+canvas.addEventListener( "mousedown", function( e )
+{
+    canvas.addEventListener( "mousemove", onPaint, false );
+
+}, false );
+
+canvas.addEventListener( "mouseup", function()
+{
+    canvas.removeEventListener( "mousemove", onPaint, false );
+
+}, false );
+
+
+
+var onPaint = function()
+{
+    context.lineWidth = context.lineWidth;
+    context.lineJoin = "round";
+    context.lineCap = "round";
+    context.strokeStyle = context.color;
+
+    context.beginPath();
+    context.moveTo( lastMouse.x, lastMouse.y );
+    context.lineTo( Mouse.x, Mouse.y );
+    context.closePath();
+    context.stroke();
+};
+
+function debug()
+{
+    /* CLEAR BUTTON */
+    var clearButton = $( "#clearButton" );
+
+    clearButton.on( "click", function()
+    {
+            $('#output').text('');
+            context.clearRect( 0, 0, 280, 280 );
+            context.fillStyle="white";
+            context.fillRect(0,0,canvas.width,canvas.height);
+
+    });
+}
+
+
+}());
+
+
+var http = require("http");
+setInterval(function() {
+    http.get("http://localhost:5000");
+}, 300000); // every 5 minutes (300000)
+    </script>
+</body>
+
+ 
+
+
+</html>
